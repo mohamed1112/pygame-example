@@ -14,12 +14,16 @@ COLOR = {'ship': pygame.Color('#FF0000'),
          'ship_fill': pygame.Color('#660000'),
          'bg': pygame.Color('#333333'),
          'thruster': pygame.Color('#7799FF'),
+         'text': pygame.Color('#1F46FF'),
+         'green': pygame.Color('#228B22'),
+         'purple': pygame.Color('#F0F8FF'),
 }
 
 # Game states
 STATE_PREGAME = 1
 STATE_RUNNING = 2
 STATE_GAMEOVER = 3
+STATE_PAUSE = 4
 
 class Controller():
     """Game controller."""
@@ -33,10 +37,19 @@ class Controller():
         pygame.display.set_caption(CAPTION)
         self.clock = pygame.time.Clock()
 
+        self.large_text = pygame.font.Font('Roboto-Regular.ttf', 115)
+        self.large_text4 = pygame.font.Font('Roboto-Regular.ttf', 70)
+        self.large_text5 = pygame.font.Font('Roboto-Regular.ttf', 70)
+
         self.player = Player(self.screen)
 
         # Initialize game state
         self.game_state = STATE_PREGAME
+
+
+
+
+
 
 
     def run(self):
@@ -56,7 +69,28 @@ class Controller():
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                         self.game_state = STATE_RUNNING
 
+
+                self.screen.fill(COLOR['bg'])
+                text_surface = self.large_text4.render('Press Space to play!!!', True, COLOR['green'])
+                self.screen.blit(text_surface, ((SCREEN_SIZE[0] - text_surface.get_width()) / 2,
+                                                        (SCREEN_SIZE[1] - text_surface.get_height()) / 2))
+
+
+
                 if self.game_state == STATE_RUNNING:
+
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                        self.game_state = STATE_PAUSE
+
+                        self.screen.fill(COLOR['bg'])
+                        text_surface = self.large_text5.render('Paused', True, COLOR['purple'])
+                        self.screen.blit(text_surface, ((SCREEN_SIZE[0] - text_surface.get_width()) / 2,
+                                                                (SCREEN_SIZE[1] - text_surface.get_height()) / 2))
+
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                        self.game_state = STATE_RUNNING
+
+
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
                         self.player.engine_on()
 
@@ -90,7 +124,12 @@ class Controller():
                 self.player.draw()
 
             if self.game_state == STATE_GAMEOVER:
-                self.quit()  # Gör något bättre.
+                #self.quit()  # Gör något bättre.
+                self.screen.fill(COLOR['bg'])
+                text_surface = self.large_text.render('Game Over', True, COLOR['text'])
+                self.screen.blit(text_surface, ((SCREEN_SIZE[0] - text_surface.get_width()) / 2,
+                                                (SCREEN_SIZE[1] - text_surface.get_height()) / 2))
+
 
             pygame.display.flip()
 
@@ -114,9 +153,11 @@ class Player():
         self.y_speed = 0
         self.gravity = 0.1
 
+
     def draw(self):
         surface = pygame.Surface((20, 20))
         surface.fill(COLOR['bg'])
+
 #        pygame.draw.line(surface, COLOR['ship'], (10, 0), (15, 20))
 #        pygame.draw.line(surface, COLOR['ship'], (10, 0), (5, 20))
         pygame.draw.polygon(surface, COLOR['ship_fill'], ((10, 0), (15, 15), (5, 15)), 0)
@@ -133,6 +174,10 @@ class Player():
 
 
         self.screen.blit(surface, (self.x - 10, self.y - 10))
+
+
+
+
 
     def tick(self):
         # -- Y-axis control
